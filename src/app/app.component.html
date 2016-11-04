@@ -1,3 +1,115 @@
-<h1>
-  {{title}}
-</h1>
+<md-toolbar color="primary">
+  Ng2-Idle Example
+  <span class="app-toolbar-filler"></span>
+</md-toolbar>
+<div class="app-content">
+  <md-card>
+    <h2>Example</h2>
+    <p>Once you go idle, a timeout will start. Click, scroll, or press a key to interrupt it. If you time out, click the <strong>Reset</strong> button to start the demo again.</p>
+    <p><strong>{{idleState}}</strong></p>
+    <button md-raised-button color="primary" (click)="reset()" *ngIf="timedOut">Restart</button>
+  </md-card>
+
+  <md-card>
+    <h2>Getting Started</h2>
+    <p>This example shows you how to create a project using TypeScript and <code>angular-cli</code></p>
+    <h3>Install TypeScript</h3>
+    <p>You will get best results with TypeScript 2 or later. If you do not have this installed, run: </p>
+    <code>
+      npm install -g typescript@2.0.0
+    </code>
+    <h3>Create a project with Angular CLI</h3>
+    <p>In this example, we'll use <a href="https://cli.angular.io/" target="_blank">Angular CLI</a> to create, test, and serve your application. If you do not have Angular CLI installed, run:</p>
+    <code>
+npm uninstall -g angular-cli<br/>
+npm cache clean<br/>
+npm install -g angular-cli<br/>
+    </code>
+    <p>Run the following commands to create your project:</p>
+    <code>
+ng new my-idle-app<br/>
+cd my-idle-app
+    </code>
+    <h3>Install ng2-idle</h3>
+    <p><code>ng2-idle</code> is available via NPM. Install it by running:</p>
+    <code>
+      npm install --save ng2-idle
+    </code>
+    <h3>Set up your application module</h3>
+    <p>Open <code>src/app/app.module.ts</code> and import the <code>Ng2IdleModule</code> using</p>
+    <pre>
+import &#123; BrowserModule &#125; from '@angular/platform-browser';
+import &#123; NgModule &#125; from '@angular/core';
+import &#123; FormsModule &#125; from '@angular/forms';
+import &#123; HttpModule &#125; from '@angular/http';
+
+import &#123; Ng2IdleModule &#125; from 'ng2-idle';
+
+import &#123; AppComponent &#125; from './app.component';
+
+@NgModule(&#123;
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpModule,
+    Ng2IdleModule.forRoot()
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule &#123; &#125;
+    </pre>
+    <h3>Extend your app component</h3>
+    <p>Open <code>src/app/app.component.ts</code> and add a constructor. This is where we will configure the <code>Idle</code> service and start watching. By placing this code in the AppComponent constructor, the application will immediately start watching for idleness. This example also uses the default interrupt source by watching the document for common user input events. We also subscribe to various events to handle idle state. This is only an example; you can tailor your initialization and handling for your application's purposes.</p>
+    <pre>
+import &#123; Component &#125; from '@angular/core';
+
+import &#123;Idle, DEFAULT_INTERRUPTSOURCES&#125; from 'ng2-idle';
+
+@Component(&#123;
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+&#125;)
+export class AppComponent &#123;
+  idleState = 'Not started.';
+  timedOut = false;
+
+  constructor(private idle: Idle) &#123;
+    // sets an idle timeout of 5 seconds, for testing purposes.
+    idle.setIdle(5);
+    // sets a timeout period of 5 seconds. after 10 seconds of inactivity, the user will be considered timed out.
+    idle.setTimeout(5);
+    // sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
+    idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
+
+    idle.onIdleEnd.subscribe(() => this.idleState = 'No longer idle.');
+    idle.onTimeout.subscribe(() => &#123;
+      this.idleState = 'Timed out!';
+      this.timedOut = true;
+    &#125;);
+    idle.onIdleStart.subscribe(() => this.idleState = 'You\'ve gone idle!');
+    idle.onTimeoutWarning.subscribe((countdown) => this.idleState = 'You will time out in ' + countdown + ' seconds!');
+
+    this.reset();
+  &#125;
+
+  reset() &#123;
+    this.idle.watch();
+    this.idleState = 'Started.';
+    this.timedOut = false;
+  &#125;
+&#125;
+    </pre>
+    <p>We'll also add a simple status label and button to show the component is working, and to reset the demo if you time out. Open <code>src/app/app.component.html</code></p>
+    <pre ngNonBindable>
+&lt;p&gt;&lt;strong&gt;{{idleState}}&lt;/strong&gt;&lt;/p&gt;
+&lt;button (click)="reset()" *ngIf="timedOut"&gt;Restart&lt;/button&gt;
+    </pre>
+    <h3>Run your project</h3>
+    <p>Execute <code>ng serve</code> to serve your project at <a href="http://localhost:4200" target="_blank">http://localhost:4200</a></p>
+  </md-card>
+</div>
