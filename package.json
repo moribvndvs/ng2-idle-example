@@ -37,8 +37,10 @@
     "@angular/platform-browser": "~2.1.0",
     "@angular/platform-browser-dynamic": "~2.1.0",
     "@angular/router": "~3.1.0",
+    "@ng-idle/core": "2.0.0-beta.2",
+    "@ng-idle/keepalive": "2.0.0-beta.2",
+    "angular2-moment": "^1.0.0-beta.rc.1",
     "core-js": "^2.4.1",
-    "ng2-idle": "^1.0.0-alpha.18",
     "rxjs": "5.0.0-beta.12",
     "ts-helpers": "^1.1.1",
     "zone.js": "^0.6.23"

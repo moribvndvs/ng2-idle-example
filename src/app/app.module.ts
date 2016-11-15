@@ -5,7 +5,9 @@ import { HttpModule } from '@angular/http';
 
 import { MaterialModule } from '@angular/material';
 
-import { Ng2IdleModule } from 'ng2-idle';
+import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
+
+import { MomentModule } from 'angular2-moment';
 
 import { AppComponent } from './app.component';
 
@@ -17,8 +19,9 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule,
     HttpModule,
+    MomentModule,
     MaterialModule.forRoot(),
-    Ng2IdleModule.forRoot()
+    NgIdleKeepaliveModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

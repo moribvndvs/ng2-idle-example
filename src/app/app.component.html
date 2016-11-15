@@ -1,5 +1,5 @@
 <md-toolbar color="primary">
-  Ng2-Idle Example
+  @ng-idle Example
   <span class="app-toolbar-filler"></span>
 </md-toolbar>
 <div class="app-content">
@@ -7,12 +7,13 @@
     <h2>Example</h2>
     <p>Once you go idle, a timeout will start. Click, scroll, or press a key to interrupt it. If you time out, click the <strong>Reset</strong> button to start the demo again.</p>
     <p><strong>{{idleState}}</strong></p>
+    <p *ngIf="lastPing"><small>Last keepalive ping <strong title="{{lastPing | date: 'medium'}}">{{lastPing | amTimeAgo}}</strong></small></p>
     <button md-raised-button color="primary" (click)="reset()" *ngIf="timedOut">Restart</button>
   </md-card>
 
   <md-card>
     <h2>Getting Started</h2>
-    <p>This example shows you how to create a project using TypeScript and <code>angular-cli</code></p>
+    <p>This example shows you how to create a project using TypeScript and <code>angular-cli</code>, and includes the optional <code>@ng-idle/keepalive</code> module. It also uses <a href="https://github.com/urish/angular2-moment" target="_blank">angular2-moment</a> to provide additional pipes for formatting the last ping time.</p>
     <h3>Install TypeScript</h3>
     <p>You will get best results with TypeScript 2 or later. If you do not have this installed, run: </p>
     <code>
@@ -30,10 +31,10 @@ npm install -g angular-cli<br/>
 ng new my-idle-app<br/>
 cd my-idle-app
     </code>
-    <h3>Install ng2-idle</h3>
-    <p><code>ng2-idle</code> is available via NPM. Install it by running:</p>
+    <h3>Install @ng-idle</h3>
+    <p><code>@ng-idle</code> is available via NPM. Install it by running:</p>
     <code>
-      npm install --save ng2-idle
+      npm install --save @ng-idle/core @ng-idle/keepalive angular2-moment
     </code>
     <h3>Set up your application module</h3>
     <p>Open <code>src/app/app.module.ts</code> and import the <code>Ng2IdleModule</code> using</p>
@@ -43,7 +44,9 @@ import &#123; NgModule &#125; from '@angular/core';
 import &#123; FormsModule &#125; from '@angular/forms';
 import &#123; HttpModule &#125; from '@angular/http';
 
-import &#123; Ng2IdleModule &#125; from 'ng2-idle';
+import &#123; NgIdleKeepaliveModule &#125; from '@ng-idle/keepalive'; // this includes the core NgIdleModule but includes keepalive providers for easy wireup
+
+import &#123; MomentModule &#125; from 'angular2-moment'; // optional, provides moment-style pipes for date formatting
 
 import &#123; AppComponent &#125; from './app.component';
 
@@ -55,7 +58,8 @@ import &#123; AppComponent &#125; from './app.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    Ng2IdleModule.forRoot()
+    MomentModule,
+    NgIdleKeepaliveModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -67,7 +71,8 @@ export class AppModule &#123; &#125;
     <pre>
 import &#123; Component &#125; from '@angular/core';
 
-import &#123;Idle, DEFAULT_INTERRUPTSOURCES&#125; from 'ng2-idle';
+import &#123;Idle, DEFAULT_INTERRUPTSOURCES&#125; from '@ng-idle/core';
+import &#123;Keepalive&#125; from '@ng-idle/keepalive';
 
 @Component(&#123;
   selector: 'app-root',
@@ -77,8 +82,9 @@ import &#123;Idle, DEFAULT_INTERRUPTSOURCES&#125; from 'ng2-idle';
 export class AppComponent &#123;
   idleState = 'Not started.';
   timedOut = false;
+  lastPing?: Date = null;
 
-  constructor(private idle: Idle) &#123;
+  constructor(private idle: Idle, private keepalive: Keepalive) &#123;
     // sets an idle timeout of 5 seconds, for testing purposes.
     idle.setIdle(5);
     // sets a timeout period of 5 seconds. after 10 seconds of inactivity, the user will be considered timed out.
@@ -94,6 +100,11 @@ export class AppComponent &#123;
     idle.onIdleStart.subscribe(() => this.idleState = 'You\'ve gone idle!');
     idle.onTimeoutWarning.subscribe((countdown) => this.idleState = 'You will time out in ' + countdown + ' seconds!');
 
+    // sets the ping interval to 15 seconds
+    keepalive.interval(15);
+
+    keepalive.onPing.subscribe(() => this.lastPing = new Date());
+
     this.reset();
   &#125;
 
@@ -107,6 +118,7 @@ export class AppComponent &#123;
     <p>We'll also add a simple status label and button to show the component is working, and to reset the demo if you time out. Open <code>src/app/app.component.html</code></p>
     <pre ngNonBindable>
 &lt;p&gt;&lt;strong&gt;{{idleState}}&lt;/strong&gt;&lt;/p&gt;
+&lt;p *ngIf="lastPing"&gt;&lt;small&gt;Last keepalive ping &lt;strong&gt;{{lastPing | amTimeAgo}}&lt;/strong&gt;&lt;/small&gt;&lt;/p&gt;
 &lt;button (click)="reset()" *ngIf="timedOut"&gt;Restart&lt;/button&gt;
     </pre>
     <h3>Run your project</h3>
